@@ -6,7 +6,7 @@ import (
 )
 
 type Job struct {
-	ID          int
+	ID          string
 	Name        string
 	Type        JobType
 	NextRunTime time.Time
@@ -34,10 +34,10 @@ func (o *Overseerr) GetJobs() ([]*Job, error) {
 	return jobs, nil
 }
 
-func (o *Overseerr) RunJob(jobID int) (*Job, error) {
+func (o *Overseerr) RunJob(jobID string) (*Job, error) {
 	var job *Job
 	resp, err := o.restClient.R().
-		SetHeader("Accept", "application/json").SetPathParam("jobID", fmt.Sprintf("%d", jobID)).
+		SetHeader("Accept", "application/json").SetPathParam("jobID", jobID).
 		SetResult(&job).Post("/settings/jobs/{jobID}/run")
 	if err != nil {
 		return nil, err
@@ -48,10 +48,10 @@ func (o *Overseerr) RunJob(jobID int) (*Job, error) {
 	return job, nil
 }
 
-func (o *Overseerr) CancelJob(jobID int) (*Job, error) {
+func (o *Overseerr) CancelJob(jobID string) (*Job, error) {
 	var job *Job
 	resp, err := o.restClient.R().
-		SetHeader("Accept", "application/json").SetPathParam("jobID", fmt.Sprintf("%d", jobID)).
+		SetHeader("Accept", "application/json").SetPathParam("jobID", jobID).
 		SetResult(&job).Post("/settings/jobs/{jobID}/cancel")
 	if err != nil {
 		return nil, err
