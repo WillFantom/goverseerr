@@ -3,6 +3,7 @@ module github.com/willfantom/goverseerr
 go 1.16
 
 require (
+	github.com/Delta456/box-cli-maker/v2 v2.2.1
 	github.com/briandowns/spinner v1.12.0
 	github.com/eliukblau/pixterm v1.3.1
 	github.com/fatih/color v1.10.0 // indirect
@@ -10,7 +11,7 @@ require (
 	github.com/go-resty/resty/v2 v2.6.0
 	github.com/google/go-github/v35 v35.1.0
 	github.com/google/go-querystring v1.1.0 // indirect
-	github.com/gookit/color v1.4.2 // indirect
+	github.com/gookit/color v1.4.2
 	github.com/hashicorp/go-version v1.3.0
 	github.com/lithammer/fuzzysearch v1.1.2
 	github.com/lucasb-eyer/go-colorful v1.2.0
