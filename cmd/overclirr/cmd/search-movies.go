@@ -6,6 +6,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/willfantom/goverseerr"
+	"github.com/willfantom/goverseerr/cmd/overclirr/newui"
 	"github.com/willfantom/goverseerr/cmd/overclirr/overseerr"
 	"github.com/willfantom/goverseerr/cmd/overclirr/ui"
 )
@@ -26,7 +27,7 @@ var searchMoviesCmd = &cobra.Command{
 		searchTerm := getSearchTerm(args)
 		movies := getSearchMovies(10, searchTerm)
 		movie := selectMovieResult(movies)
-		printMovieResult(movie)
+		newui.PrintMovieResult(&movie)
 		overseerr.MovieResultAction(&movie)
 	},
 }

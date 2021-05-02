@@ -34,7 +34,7 @@ func init() {
 	viper.AddConfigPath(".")
 
 	// set default configuration values
-	viper.SetDefault("showTerminalUIComponenets", true)
+	viper.SetDefault("showLoadingSpinner", true)
 	viper.SetDefault("logLevel", "panic")
 	viper.SetDefault("itemsPerPage", 25)
 	viper.SetDefault("overseerrs", nil)

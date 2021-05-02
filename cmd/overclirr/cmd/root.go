@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/willfantom/goverseerr"
+	"github.com/willfantom/goverseerr/cmd/overclirr/newui"
 	"github.com/willfantom/goverseerr/cmd/overclirr/overseerr"
 	"github.com/willfantom/goverseerr/cmd/overclirr/ui"
 )
@@ -28,7 +29,7 @@ var RootCmd = &cobra.Command{
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		setupLogger()
 		if !noTitle {
-			ui.PrettyTitle()
+			newui.TitleBox("OverCLIrr", "An Overseerr Management Tool")
 		}
 		logrus.WithFields(logrus.Fields{
 			"command": cmd.Name(),
@@ -53,7 +54,7 @@ var RootCmd = &cobra.Command{
 				ui.PrettyOops("Could not establish a connection with profile: " + name)
 				continue
 			}
-			ui.PrettySuccess("Established connection with profile: " + name)
+			newui.Success("Established connection with profile: " + name)
 		}
 	},
 }
@@ -65,6 +66,9 @@ func setupLogger() {
 		logrus.SetLevel(logrus.PanicLevel)
 	} else {
 		logrus.SetLevel(level)
+	}
+	if logrus.GetLevel() != logrus.PanicLevel {
+		viper.Set("showLoadingSpinner", false)
 	}
 }
 
