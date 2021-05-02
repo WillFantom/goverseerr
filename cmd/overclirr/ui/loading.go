@@ -15,7 +15,7 @@ var (
 )
 
 func init() {
-	loadingSpinner = spinner.New(spinner.CharSets[1], 100*time.Millisecond, spinner.WithWriter(os.Stderr))
+	loadingSpinner = spinner.New(spinner.CharSets[3], 100*time.Millisecond, spinner.WithWriter(os.Stderr))
 	loadingSpinner.HideCursor = true
 	loadingSpinner.Color("white")
 	loadingMessageFunc = reticulating.GetLoadingMessage
@@ -36,7 +36,7 @@ func StopLoadingSpinner() {
 
 func updateLoadingMessage() {
 	for loadingSpinner.Active() {
-		loadingSpinner.Suffix = loadingMessageFunc()
+		loadingSpinner.Suffix = "  " + loadingMessageFunc()
 		time.Sleep(500 * time.Millisecond)
 	}
 }
