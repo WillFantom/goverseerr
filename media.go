@@ -6,17 +6,21 @@ import (
 )
 
 type MediaStatus int
+type MediaType string
 type RelatedVideoType string
 type RelatedVideoSite string
 
 type MediaInfo struct {
-	ID       int            `json:"id"`
-	TMDB     int            `json:"tmdbID"`
-	TVDB     int            `json:"tvdbID"`
-	Status   MediaStatus    `json:"status"`
-	Created  time.Time      `json:"createdAt"`
-	Modified time.Time      `json:"updatedAt"`
-	Requests []MediaRequest `json:"requests"`
+	ID         int            `json:"id"`
+	TMDB       int            `json:"tmdbID"`
+	TVDB       int            `json:"tvdbID"`
+	MediaType  MediaType      `json:"mediaType"`
+	Status     MediaStatus    `json:"status"`
+	Created    time.Time      `json:"createdAt"`
+	Modified   time.Time      `json:"updatedAt"`
+	Requests   []MediaRequest `json:"requests"`
+	PlexURL    string         `json:"plexUrl"`
+	ServiceURL string         `json:"serviceUrl"`
 }
 
 type Genre struct {
@@ -215,17 +219,59 @@ const (
 	RelatedVideoSiteYoutube RelatedVideoSite = "YouTube"
 )
 const (
-	MediaTypeTV     string = "tv"
-	MediaTypeMovie  string = "movie"
-	MediaTypePerson string = "person"
+	MediaTypeTV     MediaType = "tv"
+	MediaTypeMovie  MediaType = "movie"
+	MediaTypePerson MediaType = "person"
 )
 
+const (
+	MediaStatusUnknown    MediaStatus = 0
+	MediaStatusPending    MediaStatus = 1
+	MediaStatusProcessing MediaStatus = 3
+	MediaStatusPartial    MediaStatus = 4
+	MediaStatsAvailable   MediaStatus = 5
+)
+
+func (s MediaStatus) ToString() string {
+	switch s {
+	case MediaStatsAvailable:
+		return "available"
+	case MediaStatusPartial:
+		return "part-available"
+	case MediaStatusProcessing:
+		return "processing"
+	case MediaStatusPending:
+		return "pending"
+	case MediaStatusUnknown:
+		return "unknown"
+	default:
+		return "unknown"
+	}
+}
+
 func (i MediaInfo) IsTV() bool {
-	return i.TVDB != 0
+	return i.MediaType == MediaTypeTV
 }
 
 func (i MediaInfo) IsMovie() bool {
-	return i.TVDB == 0
+	return i.MediaType == MediaTypeMovie
+}
+
+func (i MediaInfo) IsPerson() bool {
+	return i.MediaType == MediaTypePerson
+}
+
+func (mt MediaType) ToEmoji() string {
+	switch mt {
+	case MediaTypeMovie:
+		return "🎬"
+	case MediaTypeTV:
+		return "📺"
+	case MediaTypePerson:
+		return "👤"
+	default:
+		return "❓"
+	}
 }
 
 func (o *Overseerr) GetMovie(movieID int) (*MovieDetails, error) {

@@ -13,7 +13,7 @@ const PosterPathBase string = "https://image.tmdb.org/t/p/w600_and_h900_bestv2"
 
 type MovieResult struct {
 	ID               int       `json:"id" mapstructure:"id"`
-	MediaType        string    `json:"mediaType" mapstructure:"mediaType"`
+	MediaType        MediaType `json:"mediaType" mapstructure:"mediaType"`
 	Popularity       int       `json:"popularity" mapstructure:"popularity"`
 	PosterPath       string    `json:"posterPath" mapstructure:"posterPath"`
 	BackdropPath     string    `json:"backdropPath" mapstructure:"backdropPath"`
@@ -34,7 +34,7 @@ type MovieResult struct {
 
 type TVResult struct {
 	ID               int       `json:"id" mapstructure:"id"`
-	MediaType        string    `json:"mediaType" mapstructure:"mediaType"`
+	MediaType        MediaType `json:"mediaType" mapstructure:"mediaType"`
 	Popularity       int       `json:"popularity" mapstructure:"popularity"`
 	PosterPath       string    `json:"posterPath" mapstructure:"posterPath"`
 	BackdropPath     string    `json:"backdropPath" mapstructure:"backdropPath"`
@@ -64,7 +64,7 @@ type PersonResult struct {
 	Popularity  int        `json:"popularity" mapstructure:"popularity"`
 	ProfilePath string     `json:"profilePath" mapstructure:"profilePath"`
 	Adult       bool       `json:"adult" mapstructure:"adult"`
-	MediaType   string     `json:"mediaType" mapstructure:"mediaType"`
+	MediaType   MediaType  `json:"mediaType" mapstructure:"mediaType"`
 	KnownFor    []KnownFor `json:"knownFor" mapstructure:"knownFor"`
 
 	OriginalIndex int

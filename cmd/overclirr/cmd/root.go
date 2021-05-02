@@ -70,16 +70,20 @@ func setupLogger() {
 
 // getOverseerrInstance returns an Overseerr struct for a profile or exits with errors
 func getOverseerrInstance(profile string) *goverseerr.Overseerr {
+	ui.StartLoadingSpinner()
 	o, err := overseerr.GetOverseerrFromProfile(profile)
 	if err != nil {
+		ui.StopLoadingSpinner()
 		ui.PrettyFatal("Could not create OversCLIrr instance with profile: " + profile)
 		logrus.WithField("extended", err.Error()).Fatalln("Could not create OversCLIrr instance with profile: " + profile)
 	}
 	overseerr.AddWrappersToOverseerr(o)
 	if !o.HealthCheck() {
+		ui.StopLoadingSpinner()
 		ui.PrettyFatal("Could not connect and authorize OversCLIrr with profile: " + profile)
 		logrus.Fatalln("Could not connect and authorize OversCLIrr with profile: " + profile)
 	}
+	ui.StopLoadingSpinner()
 	return o
 }
 

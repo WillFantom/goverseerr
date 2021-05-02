@@ -47,7 +47,7 @@ func GetMaskedInput(title string, validator func(string) error) (string, error) 
 
 func DestructiveConfirmation() {
 	prompt := promptui.Prompt{
-		Label:     "This is a destructive action, do you want to continue? (yes/no)",
+		Label:     "This is a potentially destructive action, do you want to continue? (yes/no)",
 		IsConfirm: true,
 	}
 	result, err := prompt.Run()

@@ -40,6 +40,7 @@ func PrettyOops(message string) {
 }
 
 func PrettyFatal(message string) {
+	StopLoadingSpinner()
 	fatal := pterm.NewStyle(pterm.FgBlack, pterm.BgRed, pterm.Bold)
 	fatal.Printf(" FATAL ")
 	pterm.Printf(" %s\n", message)

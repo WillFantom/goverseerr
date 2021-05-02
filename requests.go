@@ -5,6 +5,13 @@ import (
 	"time"
 )
 
+type RequestCounts struct {
+	Pending    int `json:"pending"`
+	Approved   int `json:"approved"`
+	Processing int `json:"processing"`
+	Available  int `json:"available"`
+}
+
 type MediaRequestResponse struct {
 	PageInfo Page            `json:"pageInfo"`
 	Results  []*MediaRequest `json:"results"`
@@ -63,10 +70,11 @@ const (
 	RequestFileterApproved    RequestFilter = "approved"
 	RequestFileterPending     RequestFilter = "pending"
 	RequestFileterAvailable   RequestFilter = "available"
+	RequestFileterProcessing  RequestFilter = "processing"
 	RequestFileterUnavailable RequestFilter = "unavailable"
 )
 
-func (o *Overseerr) GetRequests(pageNumber, pageSize int, filter RequestFilter, sort RequestSort) ([]*MediaRequest, error) {
+func (o *Overseerr) GetRequests(pageNumber, pageSize int, filter RequestFilter, sort RequestSort) ([]*MediaRequest, *Page, error) {
 	var requests MediaRequestResponse
 	resp, err := o.restClient.R().
 		SetHeader("Accept", "application/json").SetQueryParams(map[string]string{
@@ -76,16 +84,29 @@ func (o *Overseerr) GetRequests(pageNumber, pageSize int, filter RequestFilter, 
 		"sort":   string(sort),
 	}).SetResult(&requests).Get("/request")
 	if err != nil {
+		return nil, nil, err
+	}
+	if resp.StatusCode() != 200 {
+		return nil, nil, fmt.Errorf("received non-200 status code (%d)", resp.StatusCode())
+	}
+	return requests.Results, &requests.PageInfo, nil
+}
+
+func (o *Overseerr) GetRequestCounts() (*RequestCounts, error) {
+	var counts RequestCounts
+	resp, err := o.restClient.R().
+		SetHeader("Accept", "application/json").SetResult(&counts).Get("/request/count")
+	if err != nil {
 		return nil, err
 	}
 	if resp.StatusCode() != 200 {
 		return nil, fmt.Errorf("received non-200 status code (%d)", resp.StatusCode())
 	}
-	return requests.Results, nil
+	return &counts, nil
 }
 
-func (o *Overseerr) GetRequestsByUser(pageNumber, pageSize, userID int, filter RequestFilter, sort RequestSort) (*[]MediaRequest, error) {
-	var requests []MediaRequest
+func (o *Overseerr) GetRequestsByUser(pageNumber, pageSize, userID int, filter RequestFilter, sort RequestSort) ([]*MediaRequest, *Page, error) {
+	var requests MediaRequestResponse
 	resp, err := o.restClient.R().
 		SetHeader("Accept", "application/json").SetQueryParams(map[string]string{
 		"take":        fmt.Sprintf("%d", pageSize),
@@ -95,12 +116,12 @@ func (o *Overseerr) GetRequestsByUser(pageNumber, pageSize, userID int, filter R
 		"requestedBy": fmt.Sprintf("%d", userID),
 	}).SetResult(&requests).Get("/request")
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if resp.StatusCode() != 200 {
-		return nil, fmt.Errorf("received non-200 status code (%d)", resp.StatusCode())
+		return nil, nil, fmt.Errorf("received non-200 status code (%d)", resp.StatusCode())
 	}
-	return &requests, nil
+	return requests.Results, &requests.PageInfo, nil
 }
 
 func (o *Overseerr) CreateRequest(request NewRequest) (*MediaRequest, error) {
@@ -108,6 +129,36 @@ func (o *Overseerr) CreateRequest(request NewRequest) (*MediaRequest, error) {
 	resp, err := o.restClient.R().
 		SetHeader("Accept", "application/json").SetBody(request).
 		SetResult(&requestConfirmed).Post("/request")
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode() != 201 {
+		return nil, fmt.Errorf("received non-201 status code (%d)", resp.StatusCode())
+	}
+	return &requestConfirmed, nil
+}
+
+func (o *Overseerr) UpdateRequest(requestID int, request MediaRequest) (*MediaRequest, error) {
+	var requestConfirmed MediaRequest
+	resp, err := o.restClient.R().
+		SetHeader("Accept", "application/json").SetBody(request).
+		SetPathParam("requestID", fmt.Sprintf("%d", requestID)).
+		SetResult(&requestConfirmed).Put("/request/{requestID}")
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode() != 200 {
+		return nil, fmt.Errorf("received non-200 status code (%d)", resp.StatusCode())
+	}
+	return &requestConfirmed, nil
+}
+
+func (o *Overseerr) RetryRequest(requestID int) (*MediaRequest, error) {
+	var requestConfirmed MediaRequest
+	resp, err := o.restClient.R().
+		SetHeader("Accept", "application/json").
+		SetPathParam("requestID", fmt.Sprintf("%d", requestID)).
+		SetResult(&requestConfirmed).Post("/request/{requestID}/retry")
 	if err != nil {
 		return nil, err
 	}
@@ -165,8 +216,8 @@ func (o *Overseerr) DeleteRequest(requestID int) error {
 	if err != nil {
 		return err
 	}
-	if resp.StatusCode() != 200 {
-		return fmt.Errorf("received non-200 status code (%d)", resp.StatusCode())
+	if resp.StatusCode() != 204 {
+		return fmt.Errorf("received non-204 status code (%d)", resp.StatusCode())
 	}
 	return nil
 }

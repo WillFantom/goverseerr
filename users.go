@@ -8,7 +8,8 @@ import (
 type UserType int
 
 const (
-	UserTypePlex UserType = 1
+	UserTypePlex  UserType = 1
+	UserTypeLocal UserType = 2
 )
 
 type User struct {

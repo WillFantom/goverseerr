@@ -34,7 +34,7 @@ func getAllUsers() []*goverseerr.User {
 		}
 		allUsers = append(allUsers, users...)
 		pg++
-		if pg >= page.Pages-1 {
+		if pg >= page.Pages {
 			ui.StopLoadingSpinner()
 			return allUsers
 		}
