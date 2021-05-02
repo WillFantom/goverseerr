@@ -89,7 +89,7 @@ var loginCmd = &cobra.Command{
 			}
 			password, _ := cmd.Flags().GetString("password")
 			if err := nonEmptyValidator(password); err != nil {
-				password, er = ui.GetInput("Enter the account Password", nonEmptyValidator)
+				password, er = ui.GetMaskedInput("Enter the account Password", nonEmptyValidator)
 				if er != nil {
 					logrus.WithField("extended", er.Error()).Fatalln("password input failed")
 				}
@@ -101,7 +101,7 @@ var loginCmd = &cobra.Command{
 			ui.PrettyInfo("You can find your Plex user's token easily", "See: https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/")
 			token, _ := cmd.Flags().GetString("plex-token")
 			if err := nonEmptyValidator(token); err != nil {
-				token, er = ui.GetInput("Enter the account's Plex token", nonEmptyValidator)
+				token, er = ui.GetMaskedInput("Enter the account's Plex token", nonEmptyValidator)
 				if er != nil {
 					logrus.WithField("extended", er.Error()).Fatalln("plex token input failed")
 				}
