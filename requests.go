@@ -43,6 +43,20 @@ type MediaRequest struct {
 	ProfileID   int           `json:"profileID"`
 }
 
+type FriendlyMediaRequest struct {
+	ID               int
+	Status           string
+	StatusEmoji      string
+	MediaType        string
+	MediaTypeEmoji   string
+	CreatorEmail     string
+	CreatedDate      string
+	ContentTitle     string
+	ContentDate      string
+	MediaStatus      string
+	MediaStatusEmoji string
+}
+
 type RequestStatus int
 type RequestSort string
 type RequestFilter string
@@ -222,18 +236,48 @@ func (o *Overseerr) DeleteRequest(requestID int) error {
 	return nil
 }
 
+func (req MediaRequest) ToFriendly(o *Overseerr) (*FriendlyMediaRequest, error) {
+	var friendly FriendlyMediaRequest
+	friendly.ID = req.ID
+	friendly.Status = req.Status.ToString()
+	friendly.StatusEmoji = req.Status.ToEmoji()
+	friendly.MediaType = string(req.Media.MediaType)
+	friendly.MediaTypeEmoji = req.Media.MediaType.ToEmoji()
+	friendly.CreatorEmail = req.Creator.Email
+	friendly.CreatedDate = req.Created.Local().Format("Mon Jan 2 15:04:05 -0700 MST 2006")
+	friendly.MediaStatus = req.Media.Status.ToString()
+	friendly.MediaStatusEmoji = req.Media.Status.ToEmoji()
+	if req.Media.MediaType == MediaTypeMovie {
+		movie, err := req.GetMovieDetails(o)
+		if err != nil {
+			return nil, err
+		}
+		friendly.ContentTitle = movie.Title
+		friendly.ContentDate = movie.ReleaseDate
+	}
+	if req.Media.MediaType == MediaTypeTV {
+		tv, err := req.GetTVDetails(o)
+		if err != nil {
+			return nil, err
+		}
+		friendly.ContentTitle = tv.Name
+		friendly.ContentDate = tv.FirstAired
+	}
+	return &friendly, nil
+}
+
 func (req MediaRequest) GetTVDetails(o *Overseerr) (*TVDetails, error) {
 	if !req.Media.IsTV() {
 		return nil, fmt.Errorf("request's media type is not tv")
 	}
-	return o.GetTV(req.Media.TMDB)
+	return o.GetTVDetails(req.Media.TMDB)
 }
 
 func (req MediaRequest) GetMovieDetails(o *Overseerr) (*MovieDetails, error) {
 	if !req.Media.IsMovie() {
 		return nil, fmt.Errorf("request's media type is not movie")
 	}
-	return o.GetMovie(req.Media.TMDB)
+	return o.GetMovieDetails(req.Media.TMDB)
 }
 
 func (s RequestStatus) ToString() string {

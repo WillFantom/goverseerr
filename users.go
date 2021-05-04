@@ -167,7 +167,7 @@ func (o *Overseerr) GetUserQuota(userID int) (*UserQuota, error) {
 	return &quota, nil
 }
 
-func (o *Overseerr) GetUserRequests(userID int, pageNumber, pageSize int) ([]*MediaRequest, error) {
+func (o *Overseerr) GetUserRequests(userID int, pageNumber, pageSize int) ([]*MediaRequest, *Page, error) {
 	var requests MediaRequestResponse
 	resp, err := o.restClient.R().
 		SetHeader("Accept", "application/json").SetPathParam("userID", fmt.Sprintf("%d", userID)).
@@ -177,12 +177,12 @@ func (o *Overseerr) GetUserRequests(userID int, pageNumber, pageSize int) ([]*Me
 		}).
 		SetResult(&requests).Get("/user/{userID}/requests")
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if resp.StatusCode() != 200 {
-		return nil, fmt.Errorf("received non-200 status code (%d)", resp.StatusCode())
+		return nil, nil, fmt.Errorf("received non-200 status code (%d)", resp.StatusCode())
 	}
-	return requests.Results, nil
+	return requests.Results, &requests.PageInfo, nil
 }
 
 func (o *Overseerr) GetUserGeneralSettings(userID int) (*GenerealUserSettings, error) {

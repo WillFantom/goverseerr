@@ -102,7 +102,7 @@ type AppData struct {
 }
 
 func (o *Overseerr) Status() (*Status, error) {
-	var status *Status
+	var status Status
 	resp, err := o.restClient.R().
 		SetHeader("Accept", "application/json").
 		SetResult(&status).Get("/status")
@@ -112,11 +112,11 @@ func (o *Overseerr) Status() (*Status, error) {
 	if resp.StatusCode() != 200 {
 		return nil, fmt.Errorf("received non-200 status code (%d)", resp.StatusCode())
 	}
-	return status, nil
+	return &status, nil
 }
 
 func (o *Overseerr) GetAppData() (*AppData, error) {
-	var appdata *AppData
+	var appdata AppData
 	resp, err := o.restClient.R().
 		SetHeader("Accept", "application/json").
 		SetResult(&appdata).Get("/status/appdata")
@@ -126,7 +126,7 @@ func (o *Overseerr) GetAppData() (*AppData, error) {
 	if resp.StatusCode() != 200 {
 		return nil, fmt.Errorf("received non-200 status code (%d)", resp.StatusCode())
 	}
-	return appdata, nil
+	return &appdata, nil
 }
 
 // RegisterPreRequestMiddleware allows for a custom function to be called
