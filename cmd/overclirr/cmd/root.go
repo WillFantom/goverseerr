@@ -1,35 +1,53 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/willfantom/goverseerr"
-	"github.com/willfantom/goverseerr/cmd/overclirr/newui"
-	"github.com/willfantom/goverseerr/cmd/overclirr/overseerr"
 	"github.com/willfantom/goverseerr/cmd/overclirr/ui"
+	"github.com/willfantom/goverseerr/cmd/overclirr/utility"
 )
 
 const (
 	defaultProfile string = "default"
 )
 
+// persistent flags
 var (
 	logLevel             string
 	overseerrProfileName string
 	noTitle              bool
-	instance             *goverseerr.Overseerr
 )
+
+// instance to use
+var overseerr *goverseerr.Overseerr
+
+func setOverseer(profileName string) {
+	ui.StartSpinner()
+	profile, err := utility.GetOverseerrProfile(profileName)
+	if err != nil {
+		ui.Fatal("Overseerr profile does not exist", err)
+	}
+	instance, err := profile.Connect()
+	if err != nil {
+		ui.Fatal("Could not connect using overseerr profile: "+profileName, err)
+	}
+	overseerr = instance
+	ui.StopSpinner()
+}
 
 var RootCmd = &cobra.Command{
 	Use:     "overclirr",
 	Aliases: []string{"ocrr", "overseerr", "overseerr-cli"},
-	Short:   "Manage Overseerr(s) from the command line",
+	Short:   "Manage media servers from the command line",
 	Long:    `A simple command line tool for managing media server(s) with Overseerr!`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		setupLogger()
 		if !noTitle {
-			newui.TitleBox("OverCLIrr", "An Overseerr Management Tool")
+			ui.PrintTitleBox("OverCLIrr", "An Overseerr Management Tool")
 		}
 		logrus.WithFields(logrus.Fields{
 			"command": cmd.Name(),
@@ -37,58 +55,20 @@ var RootCmd = &cobra.Command{
 		}).Debugln("running command")
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		profiles, err := overseerr.GetOverseerrProfiles()
-		if err != nil {
-			logrus.WithField("extended", err.Error()).Errorln("failed to get login profiles")
-			ui.PrettyFatal("Could not get user profiles from configuration")
-		}
-		for name := range profiles {
-			profile, err := overseerr.GetOverseerrFromProfile(name)
-			if err != nil {
-				logrus.WithField("extended", err.Error()).Errorln("failed to get profile from profile config")
-				ui.PrettyOops("Could not build profile: " + name)
-				continue
-			}
-			if !profile.HealthCheck() {
-				logrus.WithField("profile", name).Errorln("could not establish a connection using profile")
-				ui.PrettyOops("Could not establish a connection with profile: " + name)
-				continue
-			}
-			newui.Success("Established connection with profile: " + name)
-		}
+		allProfiles := utility.GetAllOverseerrProfiles()
+		ui.ColorPrintBold("Profiles Found in Configuration: ", ui.Blue)
+		ui.ColorPrint(fmt.Sprintf("%d\n\n", len(allProfiles)), ui.White)
+		cmd.Help()
 	},
 }
 
 func setupLogger() {
 	if level, err := logrus.ParseLevel(logLevel); err != nil {
-		ui.PrettyOops("invalid log level given: " + logLevel)
-		ui.PrettyInfo("Using 'panic'")
+		ui.Error("Invalid log level given: " + logLevel)
 		logrus.SetLevel(logrus.PanicLevel)
 	} else {
 		logrus.SetLevel(level)
 	}
-	if logrus.GetLevel() != logrus.PanicLevel {
-		viper.Set("showLoadingSpinner", false)
-	}
-}
-
-// getOverseerrInstance returns an Overseerr struct for a profile or exits with errors
-func getOverseerrInstance(profile string) *goverseerr.Overseerr {
-	ui.StartLoadingSpinner()
-	o, err := overseerr.GetOverseerrFromProfile(profile)
-	if err != nil {
-		ui.StopLoadingSpinner()
-		ui.PrettyFatal("Could not create OversCLIrr instance with profile: " + profile)
-		logrus.WithField("extended", err.Error()).Fatalln("Could not create OversCLIrr instance with profile: " + profile)
-	}
-	overseerr.AddWrappersToOverseerr(o)
-	if !o.HealthCheck() {
-		ui.StopLoadingSpinner()
-		ui.PrettyFatal("Could not connect and authorize OversCLIrr with profile: " + profile)
-		logrus.Fatalln("Could not connect and authorize OversCLIrr with profile: " + profile)
-	}
-	ui.StopLoadingSpinner()
-	return o
 }
 
 func init() {

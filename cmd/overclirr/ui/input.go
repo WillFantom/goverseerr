@@ -1,38 +1,24 @@
 package ui
 
 import (
+	"strings"
+
 	"github.com/manifoldco/promptui"
-	"github.com/sirupsen/logrus"
 )
 
-func RunSelector(title string, options []string) (int, string, error) {
-	prompt := promptui.Select{
-		Label: title,
-		Items: options,
-	}
-	logrus.WithField("title", title).Traceln("running selector menu")
-	resIdx, resString, err := prompt.Run()
-	if err != nil {
-		return 0, "", err
-	}
-	logrus.WithField("selection", resString).Traceln("ending selector menu")
-
-	return resIdx, resString, err
-}
-
-func GetInput(title string, validator func(string) error) (string, error) {
+func GetInput(title string, validator func(string) error) string {
 	prompt := promptui.Prompt{
 		Label:    title,
 		Validate: validator,
 	}
 	result, err := prompt.Run()
 	if err != nil {
-		return "", err
+		Fatal("User input failed", err)
 	}
-	return result, nil
+	return result
 }
 
-func GetMaskedInput(title string, validator func(string) error) (string, error) {
+func GetMaskedInput(title string, validator func(string) error) string {
 	prompt := promptui.Prompt{
 		Label:    title,
 		Validate: validator,
@@ -40,21 +26,22 @@ func GetMaskedInput(title string, validator func(string) error) (string, error) 
 	}
 	result, err := prompt.Run()
 	if err != nil {
-		return "", err
+		Fatal("User input failed", err)
 	}
-	return result, nil
+	return result
 }
 
 func DestructiveConfirmation() {
 	prompt := promptui.Prompt{
-		Label:     "This is a potentially destructive action, do you want to continue? (yes/no)",
+		Label:     "What you are about to do could be destructive, continue?",
 		IsConfirm: true,
 	}
 	result, err := prompt.Run()
 	if err != nil {
-		logrus.WithField("extended", err.Error()).Fatalln("destructive confirmation failed")
+		Fatal("destructive confirmation failed", err)
 	}
-	if result == "n" {
-		logrus.Fatalln("refused to accept destructive confirmation")
+	if strings.ToLower(result) != "y" {
+		Error("Aborted!")
+		FatalQuiet("destructive confirmation rejected", err)
 	}
 }

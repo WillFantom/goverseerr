@@ -5,33 +5,28 @@ import (
 	"runtime"
 
 	"github.com/eliukblau/pixterm/pkg/ansimage"
-	colorful "github.com/lucasb-eyer/go-colorful"
+	"github.com/lucasb-eyer/go-colorful"
 	"github.com/pkg/browser"
-	"github.com/sirupsen/logrus"
 	"github.com/willfantom/goverseerr"
 	"golang.org/x/term"
 )
 
-func ShowMediaPoster(posterPath string) {
-	termErr := printPosterInTerminal(goverseerr.PosterPathBase + posterPath)
-	if termErr != nil {
-		logrus.WithFields(logrus.Fields{
-			"extended":   termErr.Error(),
-			"posterPath": posterPath,
-		}).Errorln("could not print the poster in the terminal")
-	} else {
-		return
-	}
-	err := browser.OpenURL(goverseerr.PosterPathBase + posterPath)
+func DisplayMediaPoster(posterPath string) {
+	//Try in the CLI first
+	err := openImageInTerminal(goverseerr.PosterPathBase + posterPath)
 	if err != nil {
-		logrus.WithFields(logrus.Fields{
-			"extended":   err.Error(),
-			"posterPath": posterPath,
-		}).Fatalln("could not show poster in the browser")
+		Error("Can't open image in the command line, using browser")
+		if bsrErr := openImageInBrowser(goverseerr.PosterPathBase + posterPath); bsrErr != nil {
+			Fatal("Could not open image at all", err)
+		}
 	}
 }
 
-func printPosterInTerminal(url string) error {
+func openImageInBrowser(url string) error {
+	return browser.OpenURL(url)
+}
+
+func openImageInTerminal(url string) error {
 	var image *ansimage.ANSImage
 	var x, y int
 	var err error

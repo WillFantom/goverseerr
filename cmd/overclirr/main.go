@@ -15,7 +15,7 @@ func main() {
 
 	if err := cmd.RootCmd.Execute(); err != nil {
 		if logrus.GetLevel() < logrus.WarnLevel {
-			ui.PrettyFatal("Try setting the log level higher (e.g. info) to see what is going on!")
+			ui.Error("Try setting the log level higher (e.g. info) to see what is going on!")
 		}
 		logrus.WithField("extended", err.Error()).
 			Fatalln("an error occurred executing the command")
@@ -27,6 +27,7 @@ func init() {
 	//set initial log level
 	lvl, _ := logrus.ParseLevel(initialLogLevel)
 	logrus.SetLevel(lvl)
+
 	// define configuration file info
 	viper.SetConfigName("overclirr")
 	viper.SetConfigType("json")
@@ -35,29 +36,30 @@ func init() {
 
 	// set default configuration values
 	viper.SetDefault("showLoadingSpinner", true)
-	viper.SetDefault("logLevel", "panic")
-	viper.SetDefault("itemsPerPage", 25)
-	viper.SetDefault("overseerrs", nil)
+	viper.SetDefault("log", initialLogLevel)
+	viper.SetDefault("profiles", nil)
 
 	// create config file
 	if err := viper.SafeWriteConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileAlreadyExistsError); !ok {
-			ui.PrettyFatal("Configuration file could not be created!")
-			logrus.WithField("extended", err.Error()).Fatalln("configuration file does not exist and can not be written to")
+			ui.Fatal("Configuration file could not be created!", err)
 		}
 	}
 
 	// read in existing config
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
-			ui.PrettyFatal("Existing configuration file could not be read in")
-			ui.PrettyInfo("Try removing the file and readding the configuration values", "Or check the wiki on GitHub...")
-			logrus.WithField("extended", err.Error()).Errorln("configuration file found but could not be used!")
+			ui.ColorPrint("Try removing the file and readding the configuration values\nOr check the wiki on GitHub...", ui.Blue)
+			ui.Fatal("Existing configuration file could not be read in", err)
 		} else {
-			ui.PrettyFatal("No configuration file could be found")
-			ui.PrettyInfo("This should have been created automatically...")
-			logrus.WithField("extended", err.Error()).Errorln("could not find a config file")
+			ui.ColorPrint("Config file should have been created automatically...", ui.White)
+			ui.Fatal("No configuration file could be found", err)
 		}
+	}
+
+	// config cascade
+	if viper.GetString("log") != initialLogLevel {
+		viper.Set("showLoadingSpinner", false)
 	}
 
 	logrus.Traceln("configuration init success")

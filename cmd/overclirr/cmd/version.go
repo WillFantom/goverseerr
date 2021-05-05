@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/google/go-github/v35/github"
 	semver "github.com/hashicorp/go-version"
@@ -23,7 +22,24 @@ var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Print the version of OverCLIrr",
 	Run: func(cmd *cobra.Command, args []string) {
-		ui.PrettyInfo(fmt.Sprintf("OverCLIrr version: %s\n", version))
+		ui.ColorPrint("OverCLIrr Version: ", ui.White)
+		ui.ColorPrintBold(version+"\n", ui.Magenta)
+	},
+}
+
+var overseerrVersion = &cobra.Command{
+	Use:   "overseerr-version",
+	Short: "Print the version of the connected Overseerr instance",
+	PreRun: func(cmd *cobra.Command, args []string) {
+		setOverseer(overseerrProfileName)
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		status, err := overseerr.Status()
+		if err != nil {
+			ui.Fatal("Could not determine Overseerr version", err)
+		}
+		ui.ColorPrint("Overseerr Version: ", ui.White)
+		ui.ColorPrintBold(status.Version+"\n", ui.Magenta)
 	},
 }
 
@@ -33,13 +49,12 @@ var updateCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		available, err := checkForUpdate()
 		if available {
-			ui.PrettyInfo("An update is available", "Check the releases on GitHub")
+			ui.ColorPrint("An update is available\nCheck the releases on GitHub\n", ui.Blue)
 		} else if !available && err == nil {
-			ui.PrettyInfo("You are running the latest version according to GitHub")
+			ui.ColorPrint("You are running the latest version according to GitHub\n", ui.Blue)
 		} else {
-			ui.PrettyOops("Could not perform version check")
-			ui.PrettyInfo("Perhaps this is unversioned?", "Or perhaps you can't connect to GitHub")
-			logrus.WithField("extended", err.Error()).Fatalln("could not perform version check")
+			ui.Error("Could not perform version check")
+			ui.Fatal("Perhaps this is unversioned? Or you can't connect to GitHub?", err)
 		}
 	},
 }
@@ -80,4 +95,5 @@ func checkForUpdate() (bool, error) {
 func init() {
 	RootCmd.AddCommand(versionCmd)
 	RootCmd.AddCommand(updateCmd)
+	RootCmd.AddCommand(overseerrVersion)
 }

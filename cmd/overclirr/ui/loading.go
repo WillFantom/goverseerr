@@ -15,22 +15,16 @@ var (
 )
 
 func init() {
-	loadingSpinner = spinner.New(spinner.CharSets[3], 100*time.Millisecond, spinner.WithWriter(os.Stderr))
+	loadingSpinner = spinner.New(spinner.CharSets[2], 100*time.Millisecond, spinner.WithWriter(os.Stderr))
 	loadingSpinner.HideCursor = true
 	loadingSpinner.Color("white")
 	loadingMessageFunc = reticulating.GetLoadingMessage
 }
 
-func StartLoadingSpinner() {
-	if viper.GetBool("showTerminalUIComponenets") {
+func StartSpinner() {
+	if viper.GetBool("showLoadingSpinner") {
 		loadingSpinner.Start()
 		go updateLoadingMessage()
-	}
-}
-
-func StopLoadingSpinner() {
-	if viper.GetBool("showTerminalUIComponenets") {
-		loadingSpinner.Stop()
 	}
 }
 
@@ -39,4 +33,8 @@ func updateLoadingMessage() {
 		loadingSpinner.Suffix = "  " + loadingMessageFunc()
 		time.Sleep(500 * time.Millisecond)
 	}
+}
+
+func StopSpinner() {
+	loadingSpinner.Stop()
 }
