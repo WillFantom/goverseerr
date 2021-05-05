@@ -16,10 +16,7 @@ On Other Systems:
 
 ### Use OverCLIrr
 
-For Users:
-
-For Admins:
-
+![help](./help.png)
 ### Build OverCLIrr
 
 ```bash
