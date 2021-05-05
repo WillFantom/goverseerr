@@ -1,5 +1,6 @@
 url: "https://github.com/willfantom/goverseerr/releases/download/$VERSION/overclirr-$VERSION-darwin-amd64.tar.gz"
 tap: willfantom/homebrew-overclirr/overclirr.rb
+branches: main
 template: >
   class Overclirr < Formula
     desc     "Manage a Media Server from the CLI with Overseerr/OverCLIrr"
