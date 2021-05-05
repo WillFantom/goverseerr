@@ -6,7 +6,13 @@
 
 On MacOS:
 
+```bash
+brew install willfantom/overclirr/overclirr
+```
+
 On Other Systems:
+
+- Just download the appropriate binary from the Github releases!
 
 ### Use OverCLIrr
 
