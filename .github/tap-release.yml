@@ -5,9 +5,10 @@ template: >
   class Overclirr < Formula
     desc     "Manage a Media Server from the CLI with Overseerr/OverCLIrr"
     homepage "$REPO_WEBSITE"
-    version  "$DEVEL_VERSION"
-    url      "$DEVEL_ASSET_URL"
-    sha256   "$DEVEL_ASSET_SHA256"
+    version  "$STABLE_VERSION"
+    url      "$STABLE_ASSET_URL"
+    sha256   "$STABLE_ASSET_SHA256"
+
 
     def install
       prefix.install "overclirr"
