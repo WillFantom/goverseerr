@@ -132,29 +132,29 @@ const (
 	MediaStatusPending    MediaStatus = 1
 	MediaStatusProcessing MediaStatus = 3
 	MediaStatusPartial    MediaStatus = 4
-	MediaStatsAvailable   MediaStatus = 5
+	MediaStatusAvailable  MediaStatus = 5
 )
 
 func (s MediaStatus) ToString() string {
 	switch s {
-	case MediaStatsAvailable:
-		return "available"
+	case MediaStatusAvailable:
+		return "Available"
 	case MediaStatusPartial:
-		return "part-available"
+		return "Part-Available"
 	case MediaStatusProcessing:
-		return "processing"
+		return "Processing"
 	case MediaStatusPending:
-		return "pending"
+		return "Pending"
 	case MediaStatusUnknown:
-		return "unknown"
+		return "Unknown"
 	default:
-		return "unknown"
+		return "Unknown"
 	}
 }
 
 func (s MediaStatus) ToEmoji() string {
 	switch s {
-	case MediaStatsAvailable:
+	case MediaStatusAvailable:
 		return "✅"
 	case MediaStatusPartial:
 		return "✔️"
