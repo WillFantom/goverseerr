@@ -6,25 +6,30 @@ import (
 )
 
 type PlexDevice struct {
-	Name             string         `json:"name"`
-	Product          string         `json:"product"`
-	ProductVersion   string         `json:"productVersion"`
-	Platform         string         `json:"platform"`
-	PlatformVersion  string         `json:"platformVersion"`
-	Device           string         `json:"device"`
-	ClientIdentifier string         `json:"clientIdentifier"`
-	Created          time.Time      `json:"createdAt"`
-	LastSeen         time.Time      `json:"lastSeenAt"`
-	Owned            bool           `json:"owned"`
-	OwnerID          string         `json:"ownerId"`
-	Home             bool           `json:"home"`
-	SourceTitle      string         `json:"sourceTitle"`
-	AccessToken      string         `json:"accessToken"`
-	PublicAddress    string         `json:"publicAddress"`
-	HTTPSRequired    bool           `json:"httpsRequired"`
-	Synced           bool           `json:"synced"`
-	Relay            bool           `json:"relay"`
-	Connection       PlexConnection `json:"connection"`
+	Name                   string         `json:"name"`
+	Product                string         `json:"product"`
+	ProductVersion         string         `json:"productVersion"`
+	Platform               string         `json:"platform"`
+	PlatformVersion        string         `json:"platformVersion"`
+	Device                 string         `json:"device"`
+	ClientIdentifier       string         `json:"clientIdentifier"`
+	Created                time.Time      `json:"createdAt"`
+	LastSeen               time.Time      `json:"lastSeenAt"`
+	Provides               []string       `json:"provides"`
+	Owned                  bool           `json:"owned"`
+	OwnerID                string         `json:"ownerId"`
+	Home                   bool           `json:"home"`
+	SourceTitle            string         `json:"sourceTitle"`
+	AccessToken            string         `json:"accessToken"`
+	PublicAddress          string         `json:"publicAddress"`
+	HTTPSRequired          bool           `json:"httpsRequired"`
+	Synced                 bool           `json:"synced"`
+	Relay                  bool           `json:"relay"`
+	DNSRebindingProtection bool           `json:"dnsRebindingProtection"`
+	NATLoopbackSupported   bool           `json:"natLoopbackSupported"`
+	PublicAddressMatches   bool           `json:"publicAddressMatches"`
+	Presence               bool           `json:"presence"`
+	Connection             PlexConnection `json:"connection"`
 }
 
 type PlexConnection struct {
@@ -49,6 +54,7 @@ type PlexSettings struct {
 	IP        string        `json:"ip"`
 	Port      int           `json:"port"`
 	Libraries []PlexLibrary `json:"libraries"`
+	WebAppURL string        `json:"webAppUrl"`
 }
 
 type PlexSyncStatus struct {
