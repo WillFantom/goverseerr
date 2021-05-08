@@ -159,7 +159,7 @@ func (s MediaStatus) ToEmoji() string {
 	case MediaStatusPartial:
 		return "✔️"
 	case MediaStatusProcessing:
-		return "🧑‍💻"
+		return "🧮"
 	case MediaStatusPending:
 		return "⏱"
 	case MediaStatusUnknown:
