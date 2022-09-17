@@ -1,8 +1,7 @@
 module github.com/willfantom/goverseerr
 
-go 1.16
+go 1.19
 
-require (
-	github.com/go-resty/resty/v2 v2.6.0
-	golang.org/x/net v0.0.0-20210501142056-aec3718b3fa0 // indirect
-)
+require github.com/go-resty/resty/v2 v2.7.0
+
+require golang.org/x/net v0.0.0-20220909164309-bea034e7d591 // indirect
